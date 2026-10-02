@@ -2,11 +2,11 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "KeyCraft — Minimalist Secure Password Generator",
+  title: "PassGen — Clean & Secure Password Generator",
   description:
-    "A clean, minimalist, cryptographically secure password generator. Customize length, symbols, numbers, and exclude ambiguous characters with real-time entropy estimation.",
-  keywords: ["password generator", "security", "cryptography", "minimalist", "vercel"],
-  authors: [{ name: "KeyCraft" }],
+    "A clean, minimal, cryptographically secure password generator. Customize length, symbols, numbers, and exclude ambiguous characters with real-time entropy estimation.",
+  keywords: ["PassGen", "password generator", "security", "cryptography", "minimalist", "vercel"],
+  authors: [{ name: "PassGen" }],
 };
 
 export const viewport: Viewport = {

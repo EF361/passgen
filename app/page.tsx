@@ -60,14 +60,14 @@ export default function Home() {
             <KeyRound className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-              KeyCraft
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800/50">
-                Secure
+            <h1 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              PassGen
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800/50">
+                CSPRNG
               </span>
             </h1>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:block">
-              Minimalist CSPRNG Password Generator
+              Clean & secure password generator
             </p>
           </div>
         </div>

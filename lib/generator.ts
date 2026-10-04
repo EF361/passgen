@@ -136,23 +136,88 @@ function secureShuffle(array: string[]): string[] {
   return result;
 }
 
+export interface PassphraseOptions {
+  wordCount: number;
+  separator: string;
+  includeUppercase?: boolean;
+  includeNumbers?: boolean;
+  includeSymbols?: boolean;
+  excludeAmbiguous?: boolean;
+}
+
 /**
- * Generates an xkcd-style passphrase from the word list.
+ * Generates an enhanced xkcd-style passphrase from the word list,
+ * supporting Title Case / uppercase, cryptographic number injection, and symbol injection.
  */
 export function generatePassphrase(
-  wordCount: number,
-  separator: string
+  optionsOrCount: number | PassphraseOptions,
+  legacySeparator: string = "-"
 ): string {
+  let wordCount: number;
+  let separator: string;
+  let includeUppercase = true;
+  let includeNumbers = false;
+  let includeSymbols = false;
+  let excludeAmbiguous = false;
+
+  if (typeof optionsOrCount === "number") {
+    wordCount = optionsOrCount;
+    separator = legacySeparator;
+  } else {
+    wordCount = optionsOrCount.wordCount;
+    separator = optionsOrCount.separator;
+    includeUppercase = optionsOrCount.includeUppercase ?? true;
+    includeNumbers = optionsOrCount.includeNumbers ?? false;
+    includeSymbols = optionsOrCount.includeSymbols ?? false;
+    excludeAmbiguous = optionsOrCount.excludeAmbiguous ?? false;
+  }
+
+  if (wordCount <= 0) return "";
+
   const words: string[] = [];
   for (let i = 0; i < wordCount; i++) {
-    words.push(WORD_LIST[getSecureRandomInt(WORD_LIST.length)]);
+    let word = WORD_LIST[getSecureRandomInt(WORD_LIST.length)];
+    if (includeUppercase) {
+      word = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    } else {
+      word = word.toLowerCase();
+    }
+    words.push(word);
   }
+
+  // Inject numbers if requested (e.g. Blue-Lion-Star42-Peak)
+  if (includeNumbers && words.length > 0) {
+    const targetIdx = getSecureRandomInt(words.length);
+    let digitChars = excludeAmbiguous ? filterAmbiguous(NUMBER_CHARS) : NUMBER_CHARS;
+    if (digitChars.length === 0) digitChars = NUMBER_CHARS;
+    const num = `${digitChars[getSecureRandomInt(digitChars.length)]}${digitChars[getSecureRandomInt(digitChars.length)]}`;
+    words[targetIdx] = `${words[targetIdx]}${num}`;
+  }
+
+  // Inject symbols if requested (e.g. Blue!-Lion-Star42-Peak)
+  if (includeSymbols && words.length > 0) {
+    const symbolPool = excludeAmbiguous ? filterAmbiguous("!@#$%^&*?") : "!@#$%^&*?";
+    if (symbolPool.length > 0) {
+      const sym = symbolPool[getSecureRandomInt(symbolPool.length)];
+      // Choose an index different from target index if possible
+      const symTargetIdx = words.length > 1 ? (getSecureRandomInt(words.length - 1) + 1) % words.length : 0;
+      words[symTargetIdx] = `${words[symTargetIdx]}${sym}`;
+    }
+  }
+
   return words.join(separator);
 }
 
 export function generatePassword(options: GeneratorOptions): string {
   if (options.mode === "passphrase") {
-    return generatePassphrase(options.passphraseWords, options.passphraseSeparator);
+    return generatePassphrase({
+      wordCount: options.passphraseWords,
+      separator: options.passphraseSeparator,
+      includeUppercase: options.includeUppercase,
+      includeNumbers: options.includeNumbers,
+      includeSymbols: options.includeSymbols,
+      excludeAmbiguous: options.excludeAmbiguous,
+    });
   }
 
   const {

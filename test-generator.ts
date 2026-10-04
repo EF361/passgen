@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import test from "node:test";
-import { generatePassword, calculatePasswordStrength } from "./lib/generator.ts";
+import { generatePassword, calculatePasswordStrength, generatePassphrase } from "./lib/generator.ts";
 
 test("Password generator length", () => {
   for (const len of [6, 12, 16, 24, 32, 64]) {
@@ -11,6 +11,9 @@ test("Password generator length", () => {
       includeNumbers: true,
       includeSymbols: true,
       excludeAmbiguous: false,
+      mode: "password",
+      passphraseWords: 4,
+      passphraseSeparator: "-",
     });
     assert.strictEqual(password.length, len);
   }
@@ -26,6 +29,9 @@ test("Password generator respects character sets", () => {
       includeNumbers: true,
       includeSymbols: false,
       excludeAmbiguous: false,
+      mode: "password",
+      passphraseWords: 4,
+      passphraseSeparator: "-",
     });
     assert.match(numOnly, /^[0-9]+$/);
   }
@@ -39,6 +45,9 @@ test("Password generator respects character sets", () => {
       includeNumbers: false,
       includeSymbols: false,
       excludeAmbiguous: false,
+      mode: "password",
+      passphraseWords: 4,
+      passphraseSeparator: "-",
     });
     assert.match(lowerOnly, /^[a-z]+$/);
   }
@@ -52,6 +61,9 @@ test("Password generator respects character sets", () => {
       includeNumbers: false,
       includeSymbols: false,
       excludeAmbiguous: false,
+      mode: "password",
+      passphraseWords: 4,
+      passphraseSeparator: "-",
     });
     assert.match(upperOnly, /^[A-Z]+$/);
   }
@@ -67,6 +79,9 @@ test("Password generator excludes ambiguous characters when requested", () => {
       includeNumbers: true,
       includeSymbols: true,
       excludeAmbiguous: true,
+      mode: "password",
+      passphraseWords: 4,
+      passphraseSeparator: "-",
     });
     for (const amb of ambiguousChars) {
       assert.strictEqual(
@@ -76,6 +91,73 @@ test("Password generator excludes ambiguous characters when requested", () => {
       );
     }
   }
+});
+
+test("Passphrase generator supports uppercase, numbers, and symbols", () => {
+  // 1. Word count & separator
+  const basic = generatePassphrase({
+    wordCount: 4,
+    separator: "-",
+    includeUppercase: false,
+    includeNumbers: false,
+    includeSymbols: false,
+  });
+  const parts = basic.split("-");
+  assert.strictEqual(parts.length, 4);
+  assert.match(basic, /^[a-z]+(-[a-z]+){3}$/);
+
+  // 2. Capitalize words (Title Case)
+  const titled = generatePassphrase({
+    wordCount: 3,
+    separator: ".",
+    includeUppercase: true,
+    includeNumbers: false,
+    includeSymbols: false,
+  });
+  assert.match(titled, /^[A-Z][a-z]+(\.[A-Z][a-z]+){2}$/);
+
+  // 3. Include numbers
+  for (let i = 0; i < 10; i++) {
+    const withNumbers = generatePassphrase({
+      wordCount: 4,
+      separator: "-",
+      includeUppercase: true,
+      includeNumbers: true,
+      includeSymbols: false,
+    });
+    assert.match(withNumbers, /[0-9]/, "Passphrase must contain digits when includeNumbers is true");
+  }
+
+  // 4. Include symbols
+  for (let i = 0; i < 10; i++) {
+    const withSymbols = generatePassphrase({
+      wordCount: 4,
+      separator: "-",
+      includeUppercase: true,
+      includeNumbers: false,
+      includeSymbols: true,
+    });
+    assert.match(withSymbols, /[!@#$%^&*?]/, "Passphrase must contain symbols when includeSymbols is true");
+  }
+
+  // 5. High-security combined (Title case + numbers + symbols + symbol separator)
+  const fullSec = generatePassword({
+    length: 16,
+    includeUppercase: true,
+    includeLowercase: true,
+    includeNumbers: true,
+    includeSymbols: true,
+    excludeAmbiguous: false,
+    mode: "passphrase",
+    passphraseWords: 5,
+    passphraseSeparator: "#",
+  });
+  assert.match(fullSec, /[A-Z]/, "Has uppercase");
+  assert.match(fullSec, /[a-z]/, "Has lowercase");
+  assert.match(fullSec, /[0-9]/, "Has numbers");
+  assert.match(fullSec, /[#]/, "Has custom symbol separator");
+  const strength = calculatePasswordStrength(fullSec);
+  assert.strictEqual(strength.score, 4, "High-security passphrase should score Strong");
 });
 
 test("Password strength evaluation", () => {

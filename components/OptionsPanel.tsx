@@ -19,11 +19,14 @@ interface OptionsPanelProps {
 }
 
 const SEPARATOR_OPTIONS = [
-  { value: "-", label: "Hyphen  word-word" },
-  { value: ".", label: "Dot  word.word" },
-  { value: "_", label: "Underscore  word_word" },
-  { value: " ", label: "Space  word word" },
-  { value: "", label: "None  wordword" },
+  { value: "-", label: "Hyphen (-)" },
+  { value: ".", label: "Dot (.)" },
+  { value: "_", label: "Underscore (_)" },
+  { value: "#", label: "Hash (#)" },
+  { value: "!", label: "Bang (!)" },
+  { value: "@", label: "At (@)" },
+  { value: "$", label: "Dollar ($)" },
+  { value: " ", label: "Space ( )" },
 ];
 
 export function OptionsPanel({ options, onChange }: OptionsPanelProps) {
@@ -33,7 +36,9 @@ export function OptionsPanel({ options, onChange }: OptionsPanelProps) {
     key: K,
     value: GeneratorOptions[K]
   ) => {
+    // Only in password mode: ensure at least one character set remains active
     if (
+      !isPassphrase &&
       (key === "includeUppercase" ||
         key === "includeLowercase" ||
         key === "includeNumbers" ||
@@ -251,41 +256,141 @@ export function OptionsPanel({ options, onChange }: OptionsPanelProps) {
 
       {/* Passphrase Mode Options */}
       {isPassphrase && (
-        <div className="space-y-4 p-4 bg-zinc-50/70 dark:bg-zinc-900/40 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/80">
-          {/* Word count */}
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Word Count</div>
-              <div className="text-xs text-zinc-500 dark:text-zinc-400">4+ words for strong security</div>
+        <div className="space-y-4">
+          {/* Word count stepper */}
+          <div className="p-4 bg-zinc-50/70 dark:bg-zinc-900/40 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/80">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Word Count</div>
+                <div className="text-xs text-zinc-500 dark:text-zinc-400">4+ words for high security</div>
+              </div>
+              <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-800 px-2 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => handleWordCountChange(-1)}
+                  disabled={options.passphraseWords <= 3}
+                  aria-label="Decrease word count"
+                  className="p-1 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Minus className="w-3.5 h-3.5" />
+                </button>
+                <span className="w-8 text-center font-mono font-bold text-sm text-sky-600 dark:text-sky-400 tabular-nums">
+                  {options.passphraseWords}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleWordCountChange(1)}
+                  disabled={options.passphraseWords >= 8}
+                  aria-label="Increase word count"
+                  className="p-1 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-800 px-2 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+          </div>
+
+          {/* Passphrase Entropy & Complexity Controls (Casing, Numbers, Symbols) */}
+          <div className="space-y-2.5">
+            <h3 className="text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-zinc-400">
+              Entropy &amp; Complexity
+            </h3>
+            <div className="space-y-2">
+              {/* Capitalize words toggle */}
               <button
                 type="button"
-                onClick={() => handleWordCountChange(-1)}
-                disabled={options.passphraseWords <= 3}
-                aria-label="Decrease word count"
-                className="p-1 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                role="switch"
+                aria-checked={options.includeUppercase}
+                onClick={() => updateOption("includeUppercase", !options.includeUppercase)}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                  options.includeUppercase
+                    ? "bg-white dark:bg-zinc-900 border-sky-500/60 dark:border-sky-500/50 shadow-sm shadow-sky-500/5"
+                    : "bg-zinc-50/50 dark:bg-zinc-900/30 border-zinc-200/60 dark:border-zinc-800/60 opacity-60 hover:opacity-80"
+                }`}
               >
-                <Minus className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-2.5">
+                  <div className={`p-1.5 rounded-lg transition-colors ${
+                    options.includeUppercase ? "bg-sky-500/10 text-sky-600 dark:text-sky-400" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"
+                  }`}>
+                    <CaseUpper className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Capitalize Words</div>
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400">Title Case (e.g. Word-Word)</div>
+                  </div>
+                </div>
+                <div className={`w-9 h-5 rounded-full transition-colors relative flex items-center p-0.5 ${
+                  options.includeUppercase ? "bg-sky-500" : "bg-zinc-300 dark:bg-zinc-700"
+                }`}>
+                  <div className={`w-4 h-4 rounded-full bg-white transition-transform ${options.includeUppercase ? "translate-x-4" : "translate-x-0"}`} />
+                </div>
               </button>
-              <span className="w-8 text-center font-mono font-bold text-sm text-sky-600 dark:text-sky-400 tabular-nums">
-                {options.passphraseWords}
-              </span>
+
+              {/* Include Numbers toggle */}
               <button
                 type="button"
-                onClick={() => handleWordCountChange(1)}
-                disabled={options.passphraseWords >= 8}
-                aria-label="Increase word count"
-                className="p-1 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                role="switch"
+                aria-checked={options.includeNumbers}
+                onClick={() => updateOption("includeNumbers", !options.includeNumbers)}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                  options.includeNumbers
+                    ? "bg-white dark:bg-zinc-900 border-sky-500/60 dark:border-sky-500/50 shadow-sm shadow-sky-500/5"
+                    : "bg-zinc-50/50 dark:bg-zinc-900/30 border-zinc-200/60 dark:border-zinc-800/60 opacity-60 hover:opacity-80"
+                }`}
               >
-                <Plus className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-2.5">
+                  <div className={`p-1.5 rounded-lg transition-colors ${
+                    options.includeNumbers ? "bg-sky-500/10 text-sky-600 dark:text-sky-400" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"
+                  }`}>
+                    <Hash className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Include Numbers</div>
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400">Injects random digits (e.g. Word42-Word)</div>
+                  </div>
+                </div>
+                <div className={`w-9 h-5 rounded-full transition-colors relative flex items-center p-0.5 ${
+                  options.includeNumbers ? "bg-sky-500" : "bg-zinc-300 dark:bg-zinc-700"
+                }`}>
+                  <div className={`w-4 h-4 rounded-full bg-white transition-transform ${options.includeNumbers ? "translate-x-4" : "translate-x-0"}`} />
+                </div>
+              </button>
+
+              {/* Include Symbols toggle */}
+              <button
+                type="button"
+                role="switch"
+                aria-checked={options.includeSymbols}
+                onClick={() => updateOption("includeSymbols", !options.includeSymbols)}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                  options.includeSymbols
+                    ? "bg-white dark:bg-zinc-900 border-sky-500/60 dark:border-sky-500/50 shadow-sm shadow-sky-500/5"
+                    : "bg-zinc-50/50 dark:bg-zinc-900/30 border-zinc-200/60 dark:border-zinc-800/60 opacity-60 hover:opacity-80"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className={`p-1.5 rounded-lg transition-colors ${
+                    options.includeSymbols ? "bg-sky-500/10 text-sky-600 dark:text-sky-400" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"
+                  }`}>
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Include Symbols</div>
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400">Injects special symbols (e.g. Word!-Word)</div>
+                  </div>
+                </div>
+                <div className={`w-9 h-5 rounded-full transition-colors relative flex items-center p-0.5 ${
+                  options.includeSymbols ? "bg-sky-500" : "bg-zinc-300 dark:bg-zinc-700"
+                }`}>
+                  <div className={`w-4 h-4 rounded-full bg-white transition-transform ${options.includeSymbols ? "translate-x-4" : "translate-x-0"}`} />
+                </div>
               </button>
             </div>
           </div>
 
-          {/* Separator */}
-          <div className="space-y-2">
-            <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Separator</div>
+          {/* Separator Picker */}
+          <div className="p-4 bg-zinc-50/70 dark:bg-zinc-900/40 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/80 space-y-2">
+            <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Word Separator</div>
             <div className="flex flex-wrap gap-2">
               {SEPARATOR_OPTIONS.map((sep) => (
                 <button
@@ -303,11 +408,6 @@ export function OptionsPanel({ options, onChange }: OptionsPanelProps) {
               ))}
             </div>
           </div>
-
-          {/* Info note */}
-          <p className="text-xs text-zinc-400 dark:text-zinc-500 border-t border-zinc-200/60 dark:border-zinc-800/60 pt-3">
-            Passphrases use a 512-word curated list. Easy to type, hard to crack.
-          </p>
         </div>
       )}
     </div>

@@ -7,6 +7,11 @@ export const metadata: Metadata = {
     "A clean, minimal, cryptographically secure password generator. Customize length, symbols, numbers, and exclude ambiguous characters with real-time entropy estimation.",
   keywords: ["PassGen", "password generator", "security", "cryptography", "minimalist", "vercel"],
   authors: [{ name: "PassGen" }],
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/apple-icon.svg",
+  },
 };
 
 export const viewport: Viewport = {

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <linearGradient id="keyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#0ea5e9" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0.2" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Canvas Base -->
+  <rect x="8" y="8" width="164" height="164" rx="42" fill="url(#bgGrad)" stroke="url(#borderGrad)" stroke-width="4" />
+
+  <!-- Subtle Radial Ambience -->
+  <circle cx="90" cy="90" r="60" fill="#0ea5e9" opacity="0.12" />
+
+  <!-- Scaled Key Glyph with Glow -->
+  <g filter="url(#glow)" transform="translate(90, 90) scale(1.35) translate(-64, -64)">
+    <!-- Key Head Circle -->
+    <circle cx="48" cy="52" r="22" stroke="url(#keyGrad)" stroke-width="7" stroke-linecap="round" fill="none" />
+    
+    <!-- Inner Pin Dot -->
+    <circle cx="48" cy="52" r="6" fill="url(#keyGrad)" />
+    
+    <!-- Key Shaft -->
+    <path d="M63.5 67.5 L91 95" stroke="url(#keyGrad)" stroke-width="7" stroke-linecap="round" />
+    
+    <!-- Key Tooth 1 -->
+    <path d="M79 83 L88 74" stroke="url(#keyGrad)" stroke-width="6" stroke-linecap="round" />
+    
+    <!-- Key Tooth 2 -->
+    <path d="M87 91 L95 83" stroke="url(#keyGrad)" stroke-width="6" stroke-linecap="round" />
+  </g>
+</svg>

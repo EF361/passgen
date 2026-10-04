@@ -1,3 +1,5 @@
+import { WORD_LIST } from "./wordlist";
+
 export interface GeneratorOptions {
   length: number;
   includeUppercase: boolean;
@@ -5,6 +7,9 @@ export interface GeneratorOptions {
   includeNumbers: boolean;
   includeSymbols: boolean;
   excludeAmbiguous: boolean;
+  mode: "password" | "passphrase";
+  passphraseWords: number;
+  passphraseSeparator: string;
 }
 
 export interface PasswordStrength {
@@ -14,6 +19,14 @@ export interface PasswordStrength {
   bgClass: string;
   percentage: number;
   entropy: number;
+}
+
+export interface PasswordStats {
+  uppercase: number;
+  lowercase: number;
+  digits: number;
+  symbols: number;
+  total: number;
 }
 
 const UPPERCASE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -35,7 +48,7 @@ function filterAmbiguous(charset: string): string {
  * Generates a cryptographically secure random integer in range [0, max - 1].
  * Uses rejection sampling / uniform distribution to prevent modulo bias.
  */
-function getSecureRandomInt(max: number): number {
+export function getSecureRandomInt(max: number): number {
   if (max <= 0) return 0;
   const range = 0x100000000; // 2^32
   const limit = range - (range % max);
@@ -62,7 +75,25 @@ function secureShuffle(array: string[]): string[] {
   return result;
 }
 
+/**
+ * Generates an xkcd-style passphrase from the word list.
+ */
+export function generatePassphrase(
+  wordCount: number,
+  separator: string
+): string {
+  const words: string[] = [];
+  for (let i = 0; i < wordCount; i++) {
+    words.push(WORD_LIST[getSecureRandomInt(WORD_LIST.length)]);
+  }
+  return words.join(separator);
+}
+
 export function generatePassword(options: GeneratorOptions): string {
+  if (options.mode === "passphrase") {
+    return generatePassphrase(options.passphraseWords, options.passphraseSeparator);
+  }
+
   const {
     length,
     includeUppercase,
@@ -114,6 +145,17 @@ export function generatePassword(options: GeneratorOptions): string {
 
   // Cryptographically shuffle the characters so guaranteed set positions aren't predictable
   return secureShuffle(passwordChars).join("");
+}
+
+export function getPasswordStats(password: string): PasswordStats {
+  let uppercase = 0, lowercase = 0, digits = 0, symbols = 0;
+  for (const char of password) {
+    if (/[A-Z]/.test(char)) uppercase++;
+    else if (/[a-z]/.test(char)) lowercase++;
+    else if (/[0-9]/.test(char)) digits++;
+    else symbols++;
+  }
+  return { uppercase, lowercase, digits, symbols, total: password.length };
 }
 
 export function calculatePasswordStrength(password: string): PasswordStrength {

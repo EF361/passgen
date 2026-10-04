@@ -133,35 +133,6 @@ npm run build
 
 ---
 
-## 📝 Suggested LinkedIn Post Template
-
-Feel free to use the following caption when showcasing this project on LinkedIn:
-
-```text
-🚀 Excited to share my latest project: PassGen — a minimalist, cryptographically secure password & passphrase generator!
-
-Tired of clunky, ad-filled password tools, I built PassGen with a focus on cryptographic integrity, elegant UX, and responsive architecture:
-
-🔑 Key Highlights:
-• 100% Client-Side CSPRNG: Uses the Web Crypto API (crypto.getRandomValues) with rejection sampling to eliminate modulo bias. Zero network requests, zero server transmission.
-• Dual Generation Modes: Traditional randomized character generation (with ambiguous character exclusions like l, 1, I, O, 0) + xkcd-style pronounceable passphrases.
-• Real-time Shannon Entropy: Calculates theoretical bit entropy and breaks down uppercase, lowercase, numbers, and symbols dynamically.
-• Cross-Device QR Transfer: Scan an on-screen QR code to instantly move generated passwords to your phone without cloud clipboards.
-• Tailored Responsive UX: A desktop split-view with a sticky settings side-panel + a mobile-optimized interface with a thumb-anchored action bar.
-• Batch Generator & Export: Generate 5 passwords at once and download them directly as a text file.
-
-Built with Next.js 15, React 19, TypeScript, Tailwind CSS, Lucide Icons, and deployed on Vercel with automatic CI/CD.
-
-🌐 Live Demo: https://intelligent-curie-alpha.vercel.app
-📂 GitHub Repo: https://github.com/EF361/passgen
-
-I would love to hear your thoughts and feedback! What's your go-to strategy for secure password management?
-
-#webdevelopment #nextjs #reactjs #typescript #tailwindcss #cybersecurity #frontend #javascript #portfolio #vercel
-```
-
----
-
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).

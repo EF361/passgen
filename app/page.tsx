@@ -72,7 +72,14 @@ export default function Home() {
   const [mobileTab, setMobileTab] = useState<MobileTab>("generator");
   const [desktopTab, setDesktopTab] = useState<DesktopTab>("batch");
   const [bottomCopied, setBottomCopied] = useState(false);
+  const [bottomSpinning, setBottomSpinning] = useState(false);
   const idCounter = useRef(0);
+
+  const handleBottomGenerate = () => {
+    setBottomSpinning(true);
+    handleGenerate();
+    setTimeout(() => setBottomSpinning(false), 500);
+  };
 
   const handleGenerate = useCallback(() => {
     const newPass = generatePassword(options);
@@ -150,7 +157,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 lg:p-8 pb-28 lg:pb-8 bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
+    <div className="relative min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 lg:p-8 pb-36 lg:pb-8 bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
       {/* Background ambient lighting */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-sky-500/10 dark:bg-sky-500/5 rounded-full blur-3xl" />
@@ -298,38 +305,29 @@ export default function Home() {
 
             <StrengthMeter strength={strength} stats={stats} showStats={showStats} />
 
-            {/* Quick action buttons row */}
-            <div className="flex items-center gap-2 pt-1">
-              <button
-                type="button"
-                onClick={handleGenerate}
-                className="flex-1 group flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm shadow-md shadow-sky-600/20 active:scale-[0.99] transition-all duration-200"
-              >
-                <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
-                <span>Generate</span>
-              </button>
-
+            {/* Mobile Utility Actions (Stats & Export) */}
+            <div className="flex items-center gap-2.5 pt-1">
               <button
                 type="button"
                 onClick={() => setShowStats((v) => !v)}
-                title="Toggle character statistics"
-                className={`p-3 rounded-2xl border font-medium text-sm transition-all duration-200 active:scale-95 ${
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all duration-200 active:scale-95 cursor-pointer ${
                   showStats
                     ? "bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-700 text-sky-600 dark:text-sky-400"
-                    : "bg-zinc-50 dark:bg-zinc-900/40 border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                    : "bg-zinc-50 dark:bg-zinc-900/40 border-zinc-200/80 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
                 <BarChart2 className="w-4 h-4" />
+                <span>{showStats ? "Hide Breakdown" : "Character Breakdown"}</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleExportSingle}
                 disabled={!password}
-                title="Export password as .txt"
-                className="p-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed font-medium text-sm transition-all duration-200 active:scale-95"
+                className="flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 text-xs font-semibold transition-all duration-200 active:scale-95 cursor-pointer"
               >
                 <Download className="w-4 h-4" />
+                <span>Export .txt</span>
               </button>
             </div>
           </div>
@@ -384,10 +382,10 @@ export default function Home() {
         <div className="max-w-xl mx-auto flex items-center gap-2.5">
           <button
             type="button"
-            onClick={handleGenerate}
-            className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-sm shadow-md shadow-sky-600/20 active:scale-[0.98] transition-all duration-200"
+            onClick={handleBottomGenerate}
+            className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-sm shadow-md shadow-sky-600/20 active:scale-[0.98] transition-all duration-200 cursor-pointer"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className={`w-4 h-4 transition-transform duration-500 ${bottomSpinning ? "rotate-180" : ""}`} />
             <span>Generate</span>
           </button>
 

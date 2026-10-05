@@ -1,17 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, RotateCw, Lock, QrCode, X } from "lucide-react";
+import { Copy, Check, Lock, QrCode, X } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 
 interface PasswordDisplayProps {
   password: string;
-  onRegenerate: () => void;
+  onRegenerate?: () => void;
 }
 
-export function PasswordDisplay({ password, onRegenerate }: PasswordDisplayProps) {
+export function PasswordDisplay({ password }: PasswordDisplayProps) {
   const [copied, setCopied] = useState(false);
-  const [spinning, setSpinning] = useState(false);
   const [showQR, setShowQR] = useState(false);
 
   const handleCopy = async () => {
@@ -32,90 +31,83 @@ export function PasswordDisplay({ password, onRegenerate }: PasswordDisplayProps
     }
   };
 
-  const handleRegenerateClick = () => {
-    setSpinning(true);
-    setShowQR(false);
-    onRegenerate();
-    setTimeout(() => setSpinning(false), 450);
-  };
-
   return (
-    <div className="relative group w-full space-y-2">
-      {/* Main Password Row */}
-      <div className="flex items-center justify-between p-4 bg-white/70 dark:bg-zinc-900/80 backdrop-blur-md rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-sm hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200">
-        <div className="flex items-center gap-3 min-w-0 flex-1 mr-3">
-          <div className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 shrink-0">
-            <Lock className="w-5 h-5" />
-          </div>
-          <div className="min-w-0 flex-1 overflow-x-auto select-all">
-            {password ? (
-              <span className="font-mono text-lg md:text-xl font-medium tracking-wide text-zinc-900 dark:text-zinc-100 break-all select-all">
-                {password}
-              </span>
-            ) : (
-              <span className="text-zinc-400 dark:text-zinc-500 text-sm italic select-none">
-                Select options below to generate password...
+    <div className="relative group w-full space-y-3">
+      {/* Main Password Card */}
+      <div className="p-4 sm:p-5 bg-white/70 dark:bg-zinc-900/80 backdrop-blur-md rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-sm transition-all duration-200 space-y-3">
+        {/* Header toolbar: Status/Label on left, QR & Copy actions on right */}
+        <div className="flex items-center justify-between gap-2 border-b border-zinc-200/60 dark:border-zinc-800/60 pb-2.5">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">
+              <Lock className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+              Active Password
+            </span>
+            {password && (
+              <span className="text-[11px] font-mono text-zinc-400 dark:text-zinc-500">
+                ({password.length} chars)
               </span>
             )}
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            {/* QR Code Toggle */}
+            <button
+              type="button"
+              onClick={() => setShowQR((v) => !v)}
+              disabled={!password}
+              title={showQR ? "Hide QR code" : "Show QR code"}
+              aria-label="Toggle QR code"
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 active:scale-95 ${
+                showQR
+                  ? "bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400"
+                  : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              } disabled:opacity-40 disabled:cursor-not-allowed`}
+            >
+              {showQR ? <X className="w-3.5 h-3.5" /> : <QrCode className="w-3.5 h-3.5" />}
+              <span className="text-[11px] hidden sm:inline">{showQR ? "Close" : "QR"}</span>
+            </button>
+
+            {/* Quick Copy Button */}
+            <button
+              type="button"
+              onClick={handleCopy}
+              disabled={!password}
+              title={copied ? "Copied to clipboard!" : "Copy to clipboard"}
+              aria-label="Copy to clipboard"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium text-xs transition-all duration-200 shadow-sm active:scale-95 ${
+                copied
+                  ? "bg-emerald-500 text-white shadow-emerald-500/20"
+                  : "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 disabled:opacity-40"
+              }`}
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 animate-in zoom-in duration-200" />
+                  <span>Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
-          {/* QR Code Toggle */}
-          <button
-            type="button"
-            onClick={() => setShowQR((v) => !v)}
-            disabled={!password}
-            title="Show QR code"
-            aria-label="Toggle QR code"
-            className={`p-2.5 rounded-xl transition-all duration-200 active:scale-95 ${
-              showQR
-                ? "bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400"
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-            } disabled:opacity-40 disabled:cursor-not-allowed`}
-          >
-            {showQR ? <X className="w-5 h-5" /> : <QrCode className="w-5 h-5" />}
-          </button>
-
-          {/* Refresh / Regenerate Button */}
-          <button
-            type="button"
-            onClick={handleRegenerateClick}
-            disabled={!password}
-            title="Generate new password"
-            aria-label="Generate new password"
-            className="p-2.5 rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
-          >
-            <RotateCw
-              className={`w-5 h-5 transition-transform duration-500 ${spinning ? "rotate-180" : ""}`}
-            />
-          </button>
-
-          {/* Copy Button */}
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!password}
-            title={copied ? "Copied to clipboard!" : "Copy to clipboard"}
-            aria-label="Copy to clipboard"
-            className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 shadow-sm active:scale-95 ${
-              copied
-                ? "bg-emerald-500 text-white shadow-emerald-500/20"
-                : "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed"
-            }`}
-          >
-            {copied ? (
-              <>
-                <Check className="w-4 h-4" />
-                <span>Copied</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4" />
-                <span>Copy</span>
-              </>
-            )}
-          </button>
+        {/* Dedicated Horizontal Password Display: Full card width without wrapping */}
+        <div className="w-full overflow-x-auto py-1 scrollbar-none select-all">
+          {password ? (
+            <div className="font-mono text-xl sm:text-2xl font-bold tracking-wider text-zinc-900 dark:text-zinc-100 whitespace-nowrap select-all text-left">
+              {password}
+            </div>
+          ) : (
+            <span className="text-zinc-400 dark:text-zinc-500 text-sm italic select-none">
+              Generating secure password...
+            </span>
+          )}
         </div>
       </div>
 
